@@ -4,7 +4,5 @@ if [ -z "$1" ]; then
 else
 	arg="$1"
 fi
-export ANTHROPIC_API_KEY=dummy
-export ANTHROPIC_BASE_URL=http://localhost:8082
-export ANTHROPIC_MODEL=claude-sonnet-4-5
+unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_MODEL
 python src/agents/agent_simple.py "$arg"
