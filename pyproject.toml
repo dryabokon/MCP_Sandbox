@@ -1,0 +1,7 @@
+[project]
+name = "simple_experiment"
+version = "0.1.0"
+requires-python = ">=3.10,<3.14"
+dependencies = ["pandas", "pyyaml", "tabulate", 'sqlalchemy', 'scikit-learn', 'scikit-image', "anthropic"]
+[tool.uv]
+package = true
