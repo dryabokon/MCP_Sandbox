@@ -14,3 +14,5 @@ curl -s http://localhost:8082/v1/messages \
     ],
     "temperature": 0
   }'
+
+echo ""

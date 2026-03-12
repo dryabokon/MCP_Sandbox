@@ -15,3 +15,5 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/$MODEL:generateCon
       }
     ]
   }'
+
+echo ""

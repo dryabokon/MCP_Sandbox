@@ -1,2 +1,0 @@
-#!/bin/bash
-unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_MODEL && claude
