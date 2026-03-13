@@ -125,8 +125,11 @@ def run(
             return "sql is required for query"
         if not _is_safe_readonly_sql(sql):
             return "Only read-only SELECT/WITH queries are allowed"
-        df = client.execute_query(sql)
-        return client.prettify(df, showindex=False)
+        try:
+            df = client.execute_query(sql)
+            return client.prettify(df, showindex=False)
+        except Exception as e:
+            return f"SQL ERROR"
 
     return f"Unsupported action: {action}"
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from tabulate import tabulate
 #----------------------------------------------------------------------------------------------------------------------
 class SQLServerClient(object):
@@ -11,7 +11,7 @@ class SQLServerClient(object):
     # ----------------------------------------------------------------------------------------------------------------------
     def execute_query(self, SQL):
         with self.engine.connect() as conn:
-            df = pd.read_sql(SQL, conn)
+            df = pd.read_sql(text(SQL), conn)
 
         return df
     # ----------------------------------------------------------------------------------------------------------------------
