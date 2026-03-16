@@ -4,33 +4,27 @@ import json
 import os
 import re
 import sys
-import time
 import traceback
 from typing import Dict, Optional
-import platform
 from src.common import switch_llm_proxy
 # ----------------------------------------------------------------------------------------------------------------------
 from src.common.run_logger import RunLogger, capture_stdio
 from src.common.mcp_registry import MCPToolRegistry
 from src.common.tools_dispatcher import ToolDispatcher
 # ----------------------------------------------------------------------------------------------------------------------
-
-
 class AgentRunner:
     def __init__(
         self,
         agent_name: str,
         prompt_path: str,
         tools: Dict[str, object],
-        model: Optional[str] = None,
-        base_url: Optional[str] = None,
+        llm_provider = None,
         max_iterations: int = 10,
         max_tokens: int = 1024,
-        experiment: Optional[str] = None,
         mcp_registry: Optional[MCPToolRegistry] = None,
     ):
-        if platform.system() == "Windows":
-            switch_llm_proxy.setup_windows_env_variables(proxy_provider=None)   #'gemini' | 'openai'
+
+        switch_llm_proxy.setup_env_variables(llm_provider)       #'gemini' | 'openai'
 
         self.agent_name = agent_name
         self.system_prompt = self.load_text_file(os.path.join(os.path.dirname(__file__), prompt_path))
@@ -44,15 +38,13 @@ class AgentRunner:
             self.is_ready = True
 
         model, self.provider = self.get_model_and_provider()
-        print("--------------------------------")
         print(f"Using {model} from {self.provider}")
-        print("--------------------------------")
 
-        self.model = model or os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-5")
-        self.base_url = base_url or os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
+
+        self.model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+        self.base_url = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
         self.max_iterations = max_iterations
         self.max_tokens = max_tokens
-        self.experiment = experiment or agent_name
         self.client = anthropic.Anthropic(api_key=api_key, base_url=self.base_url)
 
         self.mcp_registry: MCPToolRegistry = mcp_registry or MCPToolRegistry()
@@ -185,7 +177,7 @@ class AgentRunner:
 
         self._ensure_mcp_connected()
 
-        logger = RunLogger(experiment=self.experiment, run_name="manual")
+        logger = RunLogger(experiment=self.agent_name, run_name="manual")
         capture_stdio(logger.dir)
 
         logger.log_meta({

@@ -1,114 +1,67 @@
-## Tool Name
+# SQLServerClient
 
-SQLServerClient
+## When to use
+Call this tool to explore and query a MySQL database. Use it for schema inspection, record counts, and SELECT queries.
 
-## Purpose
+## Input
+- `sql` (string): a read-only SQL SELECT statement
+- `schema_name` (string): schema/database to inspect
+- `table_name` (string): specific table to inspect
 
-Provides safe, read-only access to a Microsoft SQL Server database for data exploration and analysis.
-
-This tool allows agents to:
-
-- Execute SELECT queries
-- Inspect database schema
-- List tables
-- Retrieve table structure
-- Format query results for readable display
-
-## Capabilities
-
-- Run read-only SQL queries
-- List available tables
-- Get table record counts
-- Inspect table schema (columns and types)
-- Retrieve full database structure
-- Return results as formatted tables
+## Output
+Returns a formatted table, schema description, or record count depending on the operation.
 
 ## Allowed Operations
-
-- SELECT
-- Metadata queries (INFORMATION_SCHEMA)
-- Schema inspection
-- Row counts
-- Read-only aggregation queries
+SELECT, INFORMATION_SCHEMA queries, schema inspection, row counts, read-only aggregations.
 
 ## Forbidden Operations
+INSERT, UPDATE, DELETE, DROP, TRUNCATE, ALTER, CREATE, MERGE, EXEC, stored procedures, any DDL or DML.
 
-- INSERT
-- UPDATE
-- DELETE
-- DROP
-- TRUNCATE
-- ALTER
-- CREATE
-- MERGE
-- EXEC / stored procedures
-- Any data modification or administrative command
+## Schema Discovery Rules
 
-## Safety Model
+- When listing tables, always filter to user schemas only:
+  ```sql
+  WHERE TABLE_SCHEMA NOT IN ('performance_schema', 'mysql', 'sys', 'information_schema')
+  ```
+- Never run COUNT(*) on system or metadata tables
+- Inspect DISTINCT values of categorical columns before filtering on them
 
-- Assume production-like environment
-- Minimize data volume retrieved
-- Prefer limited queries (TOP, filters)
-- Never execute destructive SQL
-- Do not infer schema - inspect first
-- Handle special characters and encoding properly
-- Use UTF-8 encoding for all text operations
-- Sanitize input to prevent encoding-related errors
+## Query Construction Rules
 
-## Inputs
+- Use explicit column names, avoid SELECT *
+- Always use LIMIT on exploratory queries
+- Filter early — push WHERE conditions as close to the table as possible
+- GROUP BY primary key column + display name to avoid collisions
+- Add ORDER BY only when the column is likely indexed
 
-Depending on wrapper tool implementation:
+## MySQL-specific: prefer JOIN over EXISTS
 
-### Query Execution
+MySQL does NOT optimize correlated EXISTS subqueries well on large tables.
+EXISTS forces per-row subquery execution — on tables with 50M+ rows this causes timeouts.
 
-- `sql` (string) read-only SQL SELECT statement (UTF-8 encoded)
+**Preferred pattern for multi-table aggregation on MySQL:**
+```sql
+SELECT nb.primaryName, COUNT(DISTINCT tb.tconst) AS movie_credits
+FROM imdb.name_basics nb
+JOIN imdb.title_principals tp ON nb.nconst = tp.nconst
+JOIN imdb.title_basics tb     ON tp.tconst = tb.tconst
+WHERE tp.category IN ('actor', 'actress')
+  AND tb.titleType = 'movie'
+  AND tb.startYear > 1990
+GROUP BY nb.nconst, nb.primaryName
+ORDER BY movie_credits DESC
+LIMIT 10;
+```
 
-### Schema Inspection
+**Avoid on MySQL:**
+- Correlated EXISTS subqueries on tables > 10M rows
+- EXISTS with multiple filter conditions inside the subquery
 
-- `schema_name` (string) (UTF-8 encoded)
-- `table_name` (string) (UTF-8 encoded)
+**COUNT(DISTINCT) is correct** when an actor can appear multiple times for the same title
+(e.g. different roles) — DISTINCT removes duplicates before counting.
 
-## Outputs
-
-- Formatted table text (UTF-8 encoded)
-- Schema description
-- Table list with sizes
-- Record counts
-- Structured database metadata
-- All text output properly encoded to avoid character issues
-
-## Usage Guidelines for Agents
-
-- If user intent is unclear inspect schema first
-- Prefer schema exploration before querying
-- Avoid SELECT * for large tables
-- Use TOP for exploratory queries
-- Explain briefly what data is being retrieved
-- Handle non-ASCII characters carefully
-- Ensure proper encoding for column names and data values
-
-## Typical Use Cases
-
-- What tables exist in the database?
-- Show structure of Customers table
-- How many records are in Orders?
-- Show top 10 recent transactions
-- Summarize sales by month
-
-## Output Format
-
-- Human-readable table (UTF-8 encoded)
-- Clean column headers
-- Limited result size when exploring
-- Clear indication when no data returned
-- Properly escaped special characters
-
-## Implementation
-
-Backed by local Python utility:
-`src/common/utils_query.py`
-
-Wrapped for agent usage via:
-`src/tools/sql_*.py`
-
-All file operations use UTF-8 encoding to prevent encoding issues.
+## Notes
+- Treat database as production — minimize data volume
+- Do not invent column names — always inspect schema first
+- Do not claim success without tool confirmation
+- Handle non-ASCII characters carefully, use UTF-8

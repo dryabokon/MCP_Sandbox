@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 import pandas as pd
 from sqlalchemy import create_engine, text
 from tabulate import tabulate
@@ -76,4 +79,25 @@ class SQLServerClient(object):
         with open(self.folder_out + filename, "w", encoding="utf-8", errors="replace") as f:
             f.write(txt)
         return
-    #----------------------------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------------
+def inspect_DB(schema_name):
+
+    load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+    sql_connect = os.getenv("DB_CONNECTION")
+
+    class Config:
+        pass
+
+    cfg = Config()
+    cfg.SQL_connect = sql_connect
+    DB = SQLServerClient(cfg)
+
+    df = DB.get_tables(schema_name)
+    for table in df['TABLE_NAME'].values:
+        print(DB.prettify(DB.get_table_structure(schema_name, table).rename(columns={'column_name': table}), showindex=False))
+    return
+#----------------------------------------------------------------------------------------------------------------------
+if __name__ == "__main__":
+    inspect_DB('imdb')
+
+

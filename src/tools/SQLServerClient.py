@@ -4,24 +4,16 @@ import json
 import os
 import re
 from typing import Optional
+# ----------------------------------------------------------------------------------------------------------------------
 from src.common.utils_query import SQLServerClient as SQLServerClientBackend
 # ----------------------------------------------------------------------------------------------------------------------
-def _read_tool_md() -> str:
-    path = os.path.join(
-        os.path.dirname(__file__),
-        "../../.claude/tools/SQLServerClient.md",
-    )
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
-            return f.read().strip()
-    return "Safe read-only SQL Server client tool."
-
-
+_HERE = os.path.dirname(__file__)
+description = open(os.path.join(_HERE, "../../.claude/tools/get_weather.md"),encoding="utf-8").read().strip()
 # ----------------------------------------------------------------------------------------------------------------------
 def get_definition():
     return {
-        "name": "SQLServerClient",
-        "description": _read_tool_md(),
+        "name": os.path.basename(__file__).replace(".py", ""),
+        "description": description,
         "input_schema": {
             "type": "object",
             "properties": {

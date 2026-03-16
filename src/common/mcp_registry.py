@@ -94,7 +94,7 @@ class MCPToolRegistry:
         )
         await session.initialize()
         self.sessions[name] = session
-        print(f"  [MCP] Connected: {name} ({transport}) → {url}")
+        print(f"[MCP] Connected: {name} ({transport}) - {url}")
 
     # ------------------------------------------------------------------------------------------------------------------
     @staticmethod

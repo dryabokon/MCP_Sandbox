@@ -1,24 +1,24 @@
 import os
+# ------------------------------------------------------------------------------------------
 _HERE = os.path.dirname(__file__)
 description = open(os.path.join(_HERE, "../../.claude/tools/calculator.md")).read().strip()
-
+# ----------------------------------------------------------------------------------------------------------------------
 def get_definition():
     """Load description from .md, return tool schema."""
     return {
-        "name": "calculator",
+        "name": os.path.basename(__file__).replace(".py", ""),
         "description": description,
         "input_schema": {
             "type": "object",
             "properties": {
                 "expression": {
                     "type": "string",
-                    "description": "Math expression to evaluate, e.g. '2 + 2' or '10 * 3.5'"
+                    "description": "The expression to evaluate."
                 }
-            },
-            "required": ["expression"]
+            }
         }
     }
-
+# ----------------------------------------------------------------------------------------------------------------------
 def run(expression: str) -> str:
     """Execute the tool."""
     try:

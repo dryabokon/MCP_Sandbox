@@ -1,11 +1,12 @@
 import os
+# ------------------------------------------------------------------------------------------
 _HERE = os.path.dirname(__file__)
 description = open(os.path.join(_HERE, "../../.claude/tools/get_weather.md")).read().strip()
-
+# ------------------------------------------------------------------------------------------
 def get_definition():
     """Load description from .md, return tool schema."""
     return {
-        "name": "get_weather",
+        "name": os.path.basename(__file__).replace(".py", ""),
         "description": description,
         "input_schema": {
             "type": "object",
@@ -18,7 +19,7 @@ def get_definition():
             "required": ["city"]
         }
     }
-
+# ------------------------------------------------------------------------------------------
 def run(city: str) -> str:
     """Execute the tool (stubbed data for demo)."""
     fake_data = {

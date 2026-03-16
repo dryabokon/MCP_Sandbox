@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 # ---------------------------------------------------------------------------------------------------------------------
-def setup_windows_env_variables(proxy_provider=None):
+def setup_env_variables(proxy_provider=None):
     if proxy_provider is None or proxy_provider not in ['openai','gemini']:
         p = Path(os.path.dirname(__file__))
         key_file = p.parents[1] / 'infra/llm-anthropic/secret_key_anthropic.txt'
@@ -13,7 +13,7 @@ def setup_windows_env_variables(proxy_provider=None):
         os.environ.pop("ANTHROPIC_BASE_URL", None)
         os.environ["ANTHROPIC_MODEL"] = "claude-sonnet-4-5"
 
-        print("[WINDOWS]: Switched to native Anthropic")
+        #print(f"Using {os.environ["ANTHROPIC_MODEL"]} Anthropic")
     else:
         if proxy_provider == 'gemini':
             container_name = "llm-proxy-gemini"
@@ -30,4 +30,4 @@ def setup_windows_env_variables(proxy_provider=None):
         os.environ["ANTHROPIC_API_KEY"] = "dummy"
         os.environ["ANTHROPIC_BASE_URL"] = base_url
         os.environ["ANTHROPIC_MODEL"] = "claude-sonnet-4-5"
-        print(f"[WINDOWS]: Switched to {model} from {provider}")
+        #print(f"Using {model} from {provider}")
