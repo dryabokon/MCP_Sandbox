@@ -15,7 +15,10 @@ MCP_SERVERS = [("fetch",      "http", "http://127.0.0.1:8931/mcp"),("filesystem"
 # Q1 = "fetch https://dou.ua/lenta/news/why-hasnt-e-hryvnia-been-launched-yet/?from=strichnews and summarize your thoughts into 'DOU_summary.md'"
 # Q1 += "Then post the result to Slack channel #general with header 'Test message for upcoming TechTalk' "
 # ---------------------------------------------------------------------------------------------------------------------
-Q1 =  "Provide top 7 rated Movies linked with nconst nm0000093. Give names of the movies and who is the person we talk about. Save result as nm0000093.txt file. Then post the result to Slack channel #general with header 'Test message for upcoming TechTalk' "
+Q1 =  ("Provide top 7 rated Movies linked with nconst nm0000101. "
+       "Give names of the movies and who is the person we talk about. "
+       "Save result as nm0000093.txt file. "
+       "Then post the result to Slack channel #general with header 'Test message for upcoming TechTalk' ")
 # ---------------------------------------------------------------------------------------------------------------------
 query = sys.argv[1] if len(sys.argv) > 1 else Q1
 llm_provider = sys.argv[2] if len(sys.argv) > 2 else None
